@@ -53,7 +53,22 @@ public class Combatiente{
             int NumAtaque = in.nextInt();
             return this.ataques.get(NumAtaque-1);
     }
-    public void afectar(int DañoBase, int DañoContinuo, int VelocidadEnemigo){
+
+    public Item UsarItem(){
+        //ATACAR
+
+        System.out.println("Escoge el número de Objeto para utilizarlo");
+        for(int i = 0; i <= this.items.size()-1;i++){
+            System.out.println((i+1)+". "+ this.items.get(i).getNombre()+", Cantidad: "+this.items.get(i).getCantidad()+" , Descripción: "+this.items.get(i).getEfecto());
+        }
+        int NumItem = in.nextInt();
+        return this.items.get(NumItem-1);
+}
+
+
+
+    //AFECTAR OBJETIVO CON ATAQUE
+    public void afectar(int DañoBase, int DañoContinuo, int VelocidadEnemigo, int VelocidadPropia){
         //CAUSA EFECTO TRAS CADA TURNO
         if(this.estado.equals("En llamas")){
             this.puntosV -= 4;
@@ -64,16 +79,23 @@ public class Combatiente{
         if(DañoContinuo != 0){
             this.estado="En llamas";
         }
-        //BAJA VIDA
+        //AFECTAR VIDA DEL OBJETIVO
         this.puntosV += DañoBase;
-        //BAJA VELOCIDAD
+
+
+        //AFECTAR VELOCIDAD DEL OBJETIVO
         this.velocidad += VelocidadEnemigo;
+        this.velocidad += VelocidadPropia;
 
         //CAMBIAR ESTADO A MUERTO SI YA MURIÓ
         if(this.puntosV <= 0){
             this.estado = "muerto";
         }
 
+    }
+    public void afectarArea(int dañoA){
+
+        this.puntosV += dañoA;
 
     }
 

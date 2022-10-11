@@ -1,5 +1,7 @@
 import java.util.*;
 
+import javax.lang.model.util.ElementScanner14;
+
 public class principal{
     public static void main(String[] args){
 
@@ -40,9 +42,9 @@ public class principal{
                 }else if(i.getNombre().equals("Guerrero")){
                     i.setpuntosA(2);
                 }
-                System.out.println(i.getNombre()+"| "+i.getpuntosV()+" | "+i.getpuntosA()+" | "+i.getEstado()+"\n\n");
+                System.out.println(i.getNombre()+" | "+i.getpuntosV()+" | "+i.getpuntosA()+" | "+i.getEstado()+"");
             }
-            System.out.println("Enemigos\n| PUNTOS DE VIDA | PUNTOS DE ATAQUE | ESTADO");
+            System.out.println("\nEnemigos\n| PUNTOS DE VIDA | PUNTOS DE ATAQUE | ESTADO");
             for(Combatiente i:CEnemigos){
                 if(i.getNombre().equals("Explorador Enemigo")){
                     i.setpuntosA(1);
@@ -53,7 +55,7 @@ public class principal{
             }
 
 
-            System.out.println("¿Qué desea hacer?\n1.Empezar la partida\n2.Instrucciones\n3.Ver Items\n4.Ver Ataques\n5.Salir");
+            System.out.println("\n¿Qué desea hacer?\n1.Empezar la partida\n2.Instrucciones\n3.Ver Items\n4.Ver Ataques\n5.Salir");
             respuesta = sc.nextInt();
 
             //SELECCIONAR accion
@@ -62,95 +64,63 @@ public class principal{
                 //MIENTRAS EL ALIADO O LOS ENEMIGOS ESTEN CON VIDA
                 int numAMuertos = 0;
                 int numEMuertos = 0;
-                while(numAMuertos <= CAliados.size()){
+                while(CAliados.size() > 0){
                     
                     //CAMBIAR ESTADO DE PARTIDA
                     //CONTAR LOS ALIADOS MUERTOS
                     for(Combatiente i:CAliados){
                         if(i.getEstado().equals("muerto")){
-                            numAMuertos +=1;
+                            CAliados.remove(CAliados.indexOf(i));
+                            break;
                         }  
-                    }
-                    for(Combatiente i:CEnemigos){
-                        if(i.getEstado().equals("muerto")){
-                            numEMuertos +=1;
-                        }  
-                    }
-                    if(numEMuertos == CEnemigos.size()){
-                        System.out.println("HAS GANADO, TODOS LOS ENEMIGOS HAN MUERTO!!");
-                        break;
                     }
                     ////////////////////////////////////////////////////////////////////////
 
                     //////// I N I C I O ////////
                     //DEFINIR TURNOS
-                    int numTurno = 0;
+                    
                     if(CEnemigos.size()==3 && CAliados.size()==2){
-                        //turnos: aliado1 - enemigo1 - enemigo2 - aliado2 - enemigo3
-                        System.out.println("Turno del aliado 1: "+CAliados.get(numTurno).getNombre());
-                        System.out.println("¿Qué hará?\n1.Atacar\n2.Usar Item\n3.Escapar????");
-                        int accionN = sc.nextInt();
-                        switch(accionN){
-                            //ATACAR
-                            case 1: 
-                                Ataque a = CAliados.get(numTurno).atacar();
-                                //SI ES UN ATAQUE QUE HACE DAÑO BASE (ATAQUE DIRIGIDO), ENTONCES:
-                                if(a.getDañoB() != 0){
-                                    //ELEGIR A QUIEN ATACAR
-                                    System.out.println("A cuál enemigo desea atacar con "+a.getNombre()+"?");
-                                    int num = 1;
-                                    for(Combatiente i:CEnemigos){
-
-                                        System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
-                                        num++;
-
-                                    }
-                                    //input de cual enemigo atacar
-                                    int numEnemigo = sc.nextInt();
-                                    numEnemigo -= 1;
-                                    Combatiente ene = CEnemigos.get(numEnemigo);
-
-                                    
-                                    //CALCULO ALEATORIO RESPECTO A LA VELOCIDAD
-                                    //VELOCIDAD BASE: GUERRERO=->30 EXPLORADOR->20
-
-                                    int fallar = rand.nextInt(0, CAliados.get(numTurno).getVelocidad()+1);
-                                    if(fallar == 0){
-                                        System.out.println("UY! DEMASIADO LENTO, HA FALLADO EL ATAQUE!");
-                                    }else{
-                                        //HACER DAÑO / AFECTAR AL ENEMIGO
-                                        ene.afectar(a.getDañoB(),a.getDañoC(),a.getVelocidadE());
-                                        System.out.println(CAliados.get(numTurno).getNombre()+" a usado "+a.getNombre()+" contra "+ene.getNombre());
-                                        if(ene.getEstado().equals("muerto")){
-                                            System.out.println(a.getDañoB()+": Ha eliminado a "+ene.getNombre());
-                                        }
-                                        else{
-                                        System.out.println("Los nuevos stats del "+ene.getNombre()+" son: "+": Estado -> "+ene.getEstado()+": Puntos de Vida -> "+ene.getpuntosV()+": Velocidad -> "+ene.getVelocidad());
-                                        }
-                                    }
-
-
-                                    
-                                    
-                                }else{
-
-                                }
-                        }
                         
-
+                        //turnos: aliado1 - enemigo1 - enemigo2 - aliado2 - enemigo3
+                        turnoA1(CAliados, CEnemigos, 0);
+                        turnoE1(CEnemigos, CAliados, 0);
+                        turnoE2(CEnemigos, CAliados, 1);
+                        turnoA2(CAliados, CEnemigos, 1);
+                        turnoE3(CEnemigos, CAliados, 2);
+                        
 
 
 
                     }else if(CEnemigos.size()==2 && CAliados.size()==2){
                         //turnos: aliado1 - enemigo1 - aliado2 - enemigo2
+                        turnoA1(CAliados, CEnemigos, 0);
+                        turnoE1(CEnemigos, CAliados, 0);
+                        turnoA2(CAliados, CEnemigos, 1);
+                        turnoE2(CEnemigos, CAliados, 1);
+
                     }else if(CEnemigos.size()==1 && CAliados.size()==2){
                         //turnos: aliado1 - enemigo1 - aliado2
+                        turnoA1(CAliados, CEnemigos, 0);
+                        turnoE1(CEnemigos, CAliados, 0);
+                        turnoA2(CAliados, CEnemigos, 1);
+
                     }else if(CEnemigos.size()==3 && CAliados.size()==1){
                         //turnos: enemigo1 - aliado1 - enemigo2 - enemigo3
+                        turnoE1(CEnemigos, CAliados, 0);
+                        turnoA1(CAliados, CEnemigos, 0);
+                        turnoE2(CEnemigos, CAliados, 1);
+                        turnoE3(CEnemigos, CAliados, 2);
+
                     }else if(CEnemigos.size()==2 && CAliados.size()==1){
                         //turnos: enemigo1 - aliado1 - enemigo2
+                        turnoE1(CEnemigos, CAliados, 0);
+                        turnoA1(CAliados, CEnemigos, 0);
+                        turnoE2(CEnemigos, CAliados, 1);
+
                     }else if(CEnemigos.size()==1 && CAliados.size()==1){
                         //turnos: aliado1 - enemigo1
+                        turnoA1(CAliados, CEnemigos, 0);
+                        turnoE1(CEnemigos, CAliados, 0);
                     }
                 }
             
@@ -244,9 +214,9 @@ public class principal{
                 //LLENAR ARRAY LISTS
                 //ATAQUES
                 //NOMBRE, ESPECIAL, CANTIDAD, DAÑO BASE, DAÑO CONTÍNUO, VELOCIDAD PROPIA, VELOCIDAD ENEMIGA, EFECTO/DESCRIPCIÓN
-                Ataque ataE1 =  new Ataque("puñetazo", false, 15, 15, 0, 0, 0, "El Explorador lanza un puñetazo al " );
-                Ataque ataE2 =  new Ataque("patada", false, 15, 10, 0, 0, 0, "El Explorador da una patada al " );
-                Ataque ataE3 =  new Ataque("lanzar roca", false, 15, 15, 0, 0, 0, "El Explorador lanza una roca al " );
+                Ataque ataE1 =  new Ataque("puñetazo", false, 15, -15, 0, 0, 0, "El Explorador lanza un puñetazo al " );
+                Ataque ataE2 =  new Ataque("patada", false, 15, -10, 0, 0, 0, "El Explorador da una patada al " );
+                Ataque ataE3 =  new Ataque("lanzar roca", false, 15, -15, 0, 0, 0, "El Explorador lanza una roca al " );
                 Ataque ataE4 =  new Ataque("motivación", false, 5, 0, 0, 50, 0, "El Explorador se concentrá y recuerda el valor de la amistad aumentando su velocidad" );
 
                 ataques.add(ataE1);
@@ -283,10 +253,10 @@ public class principal{
                 items.clear();
                 //LLENAR ARRAY LISTS
                 //ATAQUES:
-                Ataque ataG1 =  new Ataque("apuñalar", false, 5, 30, 1, 0, 0, "El Guerrero usa su daga y apuñala al enemigo causando que sangre!!" );
-                Ataque ataG2 =  new Ataque("embestir", false, 5, 25, 0, 0, 0, "El Guerrero embiste al enemigo causandole daño." );
-                Ataque ataG3 =  new Ataque("Golpe de Escudo", false, 10, 15, 0, 0, -3, "El Guerrero golpea al enemigo con su escudo aturdiéndolo y volviéndolo mas lento. " );
-                Ataque ataG4 =  new Ataque("Quemar", false, 5, 15, 4, 0, 0, "La espada del guerrero está prendida fuego!! La utiliza contra el enemigo causandole un efecto de quemadura." );
+                Ataque ataG1 =  new Ataque("apuñalar", false, 5, -30, 1, 0, 0, "El Guerrero usa su daga y apuñala al enemigo causando que sangre!!" );
+                Ataque ataG2 =  new Ataque("embestir", false, 5, -25, 0, 0, 0, "El Guerrero embiste al enemigo causandole daño." );
+                Ataque ataG3 =  new Ataque("Golpe de Escudo", false, 10, -15, 0, 0, -3, "El Guerrero golpea al enemigo con su escudo aturdiéndolo y volviéndolo mas lento. " );
+                Ataque ataG4 =  new Ataque("Quemar", false, 5, -15, 4, 0, 0, "La espada del guerrero está prendida fuego!! La utiliza contra el enemigo causandole un efecto de quemadura." );
 
                 ataques.add(ataG1);
                 ataques.add(ataG2);
@@ -294,7 +264,7 @@ public class principal{
                 ataques.add(ataG4);
 
                 //ITEMS
-                Item itemG1 = new Item("Cota de Espinas", 1, 15, 0, 0, 0, -20, 0, -5, "Realizará daño cuando lo ataquen");
+                Item itemG1 = new Item("Cota de Espinas", 1, 15, 0, 0, 0, 20, 0, 5, "Realizará daño cuando lo ataquen");
                 Item itemG2 = new Item("Posión de Furia", 2, 0, 0, 0, 0, 0, 40, 15, "Obtendrá mas poder de ataque y más velocidad");
             
                 items.add(itemG1);
@@ -339,9 +309,9 @@ public class principal{
                 //LLENAR ARRAY LISTS
                 //ATAQUES
                 //NOMBRE, ESPECIAL, CANTIDAD, DAÑO BASE, DAÑO CONTÍNUO, VELOCIDAD PROPIA, VELOCIDAD ENEMIGA, EFECTO/DESCRIPCIÓN
-                Ataque ataE1 =  new Ataque("puñetazo", false, 15, 15, 0, 0, 0, "El Explorador lanza un puñetazo al " );
-                Ataque ataE2 =  new Ataque("patada", false, 15, 10, 0, 0, 0, "El Explorador da una patada al " );
-                Ataque ataE3 =  new Ataque("lanzar roca", false, 15, 15, 0, 0, 0, "El Explorador lanza una roca al " );
+                Ataque ataE1 =  new Ataque("puñetazo", false, 15, -15, 0, 0, 0, "El Explorador lanza un puñetazo al " );
+                Ataque ataE2 =  new Ataque("patada", false, 15, -10, 0, 0, 0, "El Explorador da una patada al " );
+                Ataque ataE3 =  new Ataque("lanzar roca", false, 15, -15, 0, 0, 0, "El Explorador lanza una roca al " );
                 Ataque ataE4 =  new Ataque("motivación", false, 5, 0, 0, 50, 0, "El Explorador se concentrá y recuerda el valor de la amistad aumentando su velocidad" );
 
                 ataques.add(ataE1);
@@ -351,9 +321,9 @@ public class principal{
                 //ITEMS        public Item(String nombre, int cantidad, int vida, int curacion, int daño, int dañoA, int dañoDef, int ataque,
 
                 Item itemE1 = new Item("Redencion",1, 0, 60, 0, 0, 0, 0, 10, "Curará a todos sus aliados incluyéndolos, también obtendrán  un ligero aumento de velocidad.");
-                Item itemE2 = new Item("ALternador Hextech", 1, 0, 0, 0, 25, 0, 0, 10, "Disparaá el aternador causando daño en área a los enemigos");
-                Item itemE3 = new Item("Armadura de tela", 1, 30, 0, 0, 0, 0, 0, -5, "Se pone una armadura que le aumenta la vida");
-                Item itemE4 = new Item("Guantes de combate", 1, 0, 0, 0, 0, 0, 15, -5, "Se pone unos guates de hierro que le aumentan el daño, pero lo vuelven mas lento");
+                Item itemE2 = new Item("ALternador Hextech", 1, 0, 0, 0, -25, 0, 0, 10, "Disparaá el aternador causando daño en área a los enemigos");
+                Item itemE3 = new Item("Armadura de tela", 1, 30, 0, 0, 0, 0, 0, 5, "Se pone una armadura que le aumenta la vida");
+                Item itemE4 = new Item("Guantes de combate", 1, 0, 0, 0, 0, 0, 15, 5, "Se pone unos guates de hierro que le aumentan el daño, pero lo vuelven mas lento");
 
                 items.add(itemE1);
                 items.add(itemE2);
@@ -380,7 +350,7 @@ public class principal{
                 //ATAQUES:
                 Ataque ataG1 =  new Ataque("apuñalar", false, 5, 30, 1, 0, 0, "El Guerrero usa su daga y apuñala al enemigo causando que sangre!!" );
                 Ataque ataG2 =  new Ataque("embestir", false, 5, 25, 0, 0, 0, "El Guerrero embiste al enemigo causandole daño." );
-                Ataque ataG3 =  new Ataque("Golpe de Escudo", false, 10, 15, 0, 0, -3, "El Guerrero golpea al enemigo con su escudo aturdiéndolo y volviéndolo mas lento. " );
+                Ataque ataG3 =  new Ataque("Golpe de Escudo", false, 10, 15, 0, 0, 3, "El Guerrero golpea al enemigo con su escudo aturdiéndolo y volviéndolo mas lento. " );
                 Ataque ataG4 =  new Ataque("Quemar", false, 5, 15, 4, 0, 0, "La espada del guerrero está prendida fuego!! La utiliza contra el enemigo causandole un efecto de quemadura." );
 
                 ataques.add(ataG1);
@@ -388,7 +358,7 @@ public class principal{
                 ataques.add(ataG3);
                 ataques.add(ataG4);
                 //ITEMS
-                Item itemG1 = new Item("Cota de Espinas", 1, 15, 0, 0, 0, -20, 0, -5, "Realizará daño cuando lo ataquen");
+                Item itemG1 = new Item("Cota de Espinas", 1, 15, 0, 0, 0, -20, 0, 5, "Realizará daño cuando lo ataquen");
                 Item itemG2 = new Item("Posión de Furia", 2, 0, 0, 0, 0, 0, 40, 15, "Obtendrá mas poder de ataque y más velocidad");
             
                 items.add(itemG1);
@@ -406,4 +376,573 @@ public class principal{
 
         return CEnemigos;
     }   
+
+
+    //TURNOS
+    //turno aliado 1
+
+    public static void turnoA1(ArrayList<Combatiente>  CAliados, ArrayList<Combatiente>  CEnemigos, int numTurno){
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+        System.out.println("Turno del aliado 1: "+CAliados.get(numTurno).getNombre());
+                        System.out.println("¿Qué hará?\n1.Atacar\n2.Usar Item\n3.Escapar????");
+                        int accionN = sc.nextInt();
+                        switch(accionN){
+                            //ATACAR
+                            case 1: 
+                                Ataque a = CAliados.get(numTurno).atacar();
+                                //SI ES UN ATAQUE QUE HACE DAÑO BASE (ATAQUE DIRIGIDO), ENTONCES:
+                                if(a.getDañoB() != 0){
+                                    for(Combatiente i:CEnemigos){
+                                        
+                                        if(i.getEstado().equals("muerto")){
+                                            CEnemigos.remove( (CEnemigos.indexOf(i)) );
+                                            break;
+                                        }
+
+                                    }
+                                    //ELEGIR A QUIEN ATACAR
+                                    System.out.println("A cuál enemigo desea atacar con "+a.getNombre()+"?");
+                                    int num = 1;                    
+
+                                    for(Combatiente i:CEnemigos){
+                                        
+                                        System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                        num++;
+
+                                    }
+                                    //input de cual enemigo atacar
+                                    int numEnemigo = sc.nextInt();
+                                    numEnemigo -= 1;
+                                    Combatiente ene = CEnemigos.get(numEnemigo);
+
+                                    
+                                    //CALCULO ALEATORIO RESPECTO A LA VELOCIDAD
+                                    //VELOCIDAD BASE: GUERRERO=->30 EXPLORADOR->20
+
+                                    int fallar = rand.nextInt(0, CAliados.get(numTurno).getVelocidad()+1);
+                                    if(fallar == 0){
+                                        System.out.println("UY! DEMASIADO LENTO, HA FALLADO EL ATAQUE!");
+                                    }else{
+                                        //HACER DAÑO / AFECTAR AL ENEMIGO
+                                        ene.afectar(a.getDañoB(),a.getDañoC(),a.getVelocidadE(),a.getVelocidadA());
+                                        System.out.println(CAliados.get(numTurno).getNombre()+" a usado "+a.getNombre()+" contra "+ene.getNombre());
+                                        if(ene.getEstado().equals("muerto")){
+                                            System.out.println(a.getDañoB()+": Ha eliminado a "+ene.getNombre());
+                                        }
+                                        else{
+                                        System.out.println("Los nuevos stats del "+ene.getNombre()+" son: "+": Estado -> "+ene.getEstado()+": Puntos de Vida -> "+ene.getpuntosV()+": Velocidad -> "+ene.getVelocidad());
+                                        }
+                                    }                                    
+                                }
+                                break;
+                            //ITEM
+                            case 2:
+                                //LLAMAR FUNCION DE USAR ITEM
+                                if(CAliados.get(numTurno).getItems().isEmpty()){
+                                    System.out.println(CAliados.get(numTurno).getNombre()+" ya no tiene items");
+                                }else{
+                                    Item p = CAliados.get(numTurno).UsarItem();
+                                    CAliados.get(numTurno).getItems().remove(p);
+                                    //eliminar los enemigos muertos:
+                                    Combatiente objetivo = new Combatiente("a", 1, false, null, null, " ");
+                                    if(p.getDaño() != 0){
+                                        //ELEGIR A QUIEN ATACAR
+                                        System.out.println("A cuál enemigo desea afectar con "+p.getNombre()+"?");
+                                        int num = 1;
+                                        for(Combatiente i:CEnemigos){
+                                            
+                                            System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                            num++;
+        
+                                        }
+                                        //input de cual enemigo atacar
+                                        int numEnemigo = sc.nextInt();
+                                        numEnemigo -= 1;
+    
+                                        objetivo = CEnemigos.get(numEnemigo);
+                                    }else{
+                                        objetivo = CAliados.get(numTurno);
+                                    }
+                                    
+                                    //Efecto del item   cantidad, vida, curación %, daño, daño en Area, ataque, velocidad, efecto
+                                    objetivo.afectar(p.getDaño(),p.getDañoDef(),p.getVelocidad(), p.getVelocidad());
+
+                                    //AFECTAR DAÑO EN AREA
+                                    for(Combatiente j:CEnemigos){
+                                        j.afectarArea(p.getDañoA());
+                                    }
+
+                                    System.out.println(CAliados.get(numTurno).getNombre()+" a usado "+p.getNombre());
+                                    if(objetivo.getEstado().equals("muerto")){
+                                        System.out.println(p.getDaño()+": Ha eliminado a "+objetivo.getNombre());
+                                    }
+                                    else{
+                                    System.out.println("Los nuevos stats del "+objetivo.getNombre()+" son: "+": Estado -> "+objetivo.getEstado()+": Puntos de Vida -> "+objetivo.getpuntosV()+": Velocidad -> "+objetivo.getVelocidad());
+                                    }    
+                                }
+                                break;
+                        }
+    }
+
+    //turno aliado 2
+
+    public static void turnoA2(ArrayList<Combatiente>  CAliados, ArrayList<Combatiente>  CEnemigos, int numTurno){
+        if(CEnemigos.size() == 0){
+            gano();
+        }
+        if(CAliados.size() == 0){
+            perdio();
+        }
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+        System.out.println("Turno del aliado 2: "+CAliados.get(numTurno).getNombre());
+                        System.out.println("¿Qué hará?\n1.Atacar\n2.Usar Item\n3.Escapar????");
+                        int accionN = sc.nextInt();
+                        switch(accionN){
+                            //ATACAR
+                            case 1: 
+                                Ataque a = CAliados.get(numTurno).atacar();
+                                //SI ES UN ATAQUE QUE HACE DAÑO BASE (ATAQUE DIRIGIDO), ENTONCES:
+                                if(a.getDañoB() != 0){
+                                    for(Combatiente i:CEnemigos){
+                                        
+                                        if(i.getEstado().equals("muerto")){
+                                            CEnemigos.remove( (CEnemigos.indexOf(i)) );
+                                            break;
+                                        }
+
+                                    }
+                                    //ELEGIR A QUIEN ATACAR
+                                    System.out.println("A cuál enemigo desea atacar con "+a.getNombre()+"?");
+                                    int num = 1;                    
+
+                                    for(Combatiente i:CEnemigos){
+                                        
+                                        System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                        num++;
+
+                                    }
+                                    //input de cual enemigo atacar
+                                    int numEnemigo = sc.nextInt();
+                                    numEnemigo -= 1;
+                                    Combatiente ene = CEnemigos.get(numEnemigo);
+
+                                    
+                                    //CALCULO ALEATORIO RESPECTO A LA VELOCIDAD
+                                    //VELOCIDAD BASE: GUERRERO=->30 EXPLORADOR->20
+
+                                    int fallar = rand.nextInt(0, CAliados.get(numTurno).getVelocidad()+1);
+                                    if(fallar == 0){
+                                        System.out.println("UY! DEMASIADO LENTO, HA FALLADO EL ATAQUE!");
+                                    }else{
+                                        //HACER DAÑO / AFECTAR AL ENEMIGO
+                                        ene.afectar(a.getDañoB(),a.getDañoC(),a.getVelocidadE(),a.getVelocidadA());
+                                        System.out.println(CAliados.get(numTurno).getNombre()+" a usado "+a.getNombre()+" contra "+ene.getNombre());
+                                        if(ene.getEstado().equals("muerto")){
+                                            System.out.println(a.getDañoB()+": Ha eliminado a "+ene.getNombre());
+                                        }
+                                        else{
+                                        System.out.println("Los nuevos stats del "+ene.getNombre()+" son: "+": Estado -> "+ene.getEstado()+": Puntos de Vida -> "+ene.getpuntosV()+": Velocidad -> "+ene.getVelocidad());
+                                        }
+                                    }                                    
+                                }
+                                break;
+                            //ITEM
+                            case 2:
+                                //LLAMAR FUNCION DE USAR ITEM
+                                if(CAliados.get(numTurno).getItems().isEmpty()){
+                                    System.out.println(CAliados.get(numTurno).getNombre()+" ya no tiene items");
+                                }else{
+                                    Item p = CAliados.get(numTurno).UsarItem();
+                                    CAliados.get(numTurno).getItems().remove(p);
+                                    //eliminar los enemigos muertos:
+                                    Combatiente objetivo = new Combatiente("a", 1, false, null, null, " ");
+                                    if(p.getDaño() != 0){
+                                        //ELEGIR A QUIEN ATACAR
+                                        System.out.println("A cuál enemigo desea afectar con "+p.getNombre()+"?");
+                                        int num = 1;
+                                        for(Combatiente i:CEnemigos){
+                                            
+                                            System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                            num++;
+        
+                                        }
+                                        //input de cual enemigo atacar
+                                        int numEnemigo = sc.nextInt();
+                                        numEnemigo -= 1;
+    
+                                        objetivo = CEnemigos.get(numEnemigo);
+                                    }else{
+                                        objetivo = CAliados.get(numTurno);
+                                    }
+                                    
+                                    //Efecto del item   cantidad, vida, curación %, daño, daño en Area, ataque, velocidad, efecto
+                                    objetivo.afectar(p.getDaño(),p.getDañoDef(),p.getVelocidad(), p.getVelocidad());
+
+                                    //AFECTAR DAÑO EN AREA
+                                    for(Combatiente j:CEnemigos){
+                                        j.afectarArea(p.getDañoA());
+                                    }
+
+                                    System.out.println(CAliados.get(numTurno).getNombre()+" a usado "+p.getNombre());
+                                    if(objetivo.getEstado().equals("muerto")){
+                                        System.out.println(p.getDaño()+": Ha eliminado a "+objetivo.getNombre());
+                                    }
+                                    else{
+                                    System.out.println("Los nuevos stats del "+objetivo.getNombre()+" son: "+": Estado -> "+objetivo.getEstado()+": Puntos de Vida -> "+objetivo.getpuntosV()+": Velocidad -> "+objetivo.getVelocidad());
+                                    }    
+                                }
+                                break;
+                        }
+    }
+    
+    //turno enemigo 1
+
+    public static void turnoE1(ArrayList<Combatiente>  CEnemigos, ArrayList<Combatiente>  CAliados, int numTurno){
+        if(CEnemigos.size() == 0){
+            gano();
+        }
+        if(CAliados.size() == 0){
+            perdio();
+        }
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+        System.out.println("Turno del enemigo 1: "+CEnemigos.get(numTurno).getNombre());
+                        System.out.println("¿Qué hará?\n1.Atacar\n2.Usar Item\n3.Escapar????");
+                        int accionN = sc.nextInt();
+                        switch(accionN){
+                            //ATACAR
+                            case 1: 
+                                Ataque a = CEnemigos.get(numTurno).atacar();
+                                //SI ES UN ATAQUE QUE HACE DAÑO BASE (ATAQUE DIRIGIDO), ENTONCES:
+                                if(a.getDañoB() != 0){
+                                    for(Combatiente i:CAliados){
+                                        
+                                        if(i.getEstado().equals("muerto")){
+                                            CAliados.remove( (CAliados.indexOf(i)) );
+                                            break;
+                                        }
+
+                                    }
+                                    //ELEGIR A QUIEN ATACAR
+                                    System.out.println("A cuál enemigo desea atacar con "+a.getNombre()+"?");
+                                    int num = 1;                    
+
+                                    for(Combatiente i:CAliados){
+                                        
+                                        System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                        num++;
+
+                                    }
+                                    //input de cual enemigo atacar
+                                    int numEnemigo = sc.nextInt();
+                                    numEnemigo -= 1;
+                                    Combatiente ene = CAliados.get(numEnemigo);
+
+                                    
+                                    //CALCULO ALEATORIO RESPECTO A LA VELOCIDAD
+                                    //VELOCIDAD BASE: GUERRERO=->30 EXPLORADOR->20
+
+                                    int fallar = rand.nextInt(0, CEnemigos.get(numTurno).getVelocidad()+1);
+                                    if(fallar == 0){
+                                        System.out.println("UY! DEMASIADO LENTO, HA FALLADO EL ATAQUE!");
+                                    }else{
+                                        //HACER DAÑO / AFECTAR AL ENEMIGO
+                                        ene.afectar(a.getDañoB(),a.getDañoC(),a.getVelocidadE(),a.getVelocidadA());
+                                        System.out.println(CEnemigos.get(numTurno).getNombre()+" a usado "+a.getNombre()+" contra "+ene.getNombre());
+                                        if(ene.getEstado().equals("muerto")){
+                                            System.out.println(a.getDañoB()+": Ha eliminado a "+ene.getNombre());
+                                        }
+                                        else{
+                                        System.out.println("Los nuevos stats del "+ene.getNombre()+" son: "+": Estado -> "+ene.getEstado()+": Puntos de Vida -> "+ene.getpuntosV()+": Velocidad -> "+ene.getVelocidad());
+                                        }
+                                    }                                    
+                                }
+                                break;
+                            //ITEM
+                            case 2:
+                                //LLAMAR FUNCION DE USAR ITEM
+                                if(CEnemigos.get(numTurno).getItems().isEmpty()){
+                                    System.out.println(CEnemigos.get(numTurno).getNombre()+" ya no tiene items");
+                                }else{
+                                    Item p = CEnemigos.get(numTurno).UsarItem();
+                                    CEnemigos.get(numTurno).getItems().remove(p);
+                                    //eliminar los Aliados muertos:
+                                    Combatiente objetivo = new Combatiente("a", 1, false, null, null, " ");
+                                    if(p.getDaño() != 0){
+                                        //ELEGIR A QUIEN ATACAR
+                                        System.out.println("A cuál enemigo desea afectar con "+p.getNombre()+"?");
+                                        int num = 1;
+                                        for(Combatiente i:CAliados){
+                                            
+                                            System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                            num++;
+        
+                                        }
+                                        //input de cual enemigo atacar
+                                        int numEnemigo = sc.nextInt();
+                                        numEnemigo -= 1;
+    
+                                        objetivo = CAliados.get(numEnemigo);
+                                    }else{
+                                        objetivo = CEnemigos.get(numTurno);
+                                    }
+                                    
+                                    //Efecto del item   cantidad, vida, curación %, daño, daño en Area, ataque, velocidad, efecto
+                                    objetivo.afectar(p.getDaño(),p.getDañoDef(),p.getVelocidad(), p.getVelocidad());
+
+                                    //AFECTAR DAÑO EN AREA
+                                    for(Combatiente j:CAliados){
+                                        j.afectarArea(p.getDañoA());
+                                    }
+
+                                    System.out.println(CEnemigos.get(numTurno).getNombre()+" a usado "+p.getNombre());
+                                    if(objetivo.getEstado().equals("muerto")){
+                                        System.out.println(p.getDaño()+": Ha eliminado a "+objetivo.getNombre());
+                                    }
+                                    else{
+                                    System.out.println("Los nuevos stats del "+objetivo.getNombre()+" son: "+": Estado -> "+objetivo.getEstado()+": Puntos de Vida -> "+objetivo.getpuntosV()+": Velocidad -> "+objetivo.getVelocidad());
+                                    }    
+                                }
+                                break;
+                        }
+    }
+
+
+ //turno enemigo 2
+    public static void turnoE2(ArrayList<Combatiente>  CEnemigos, ArrayList<Combatiente>  CAliados, int numTurno){
+        if(CEnemigos.size() == 0){
+            gano();
+        }
+        if(CAliados.size() == 0){
+            perdio();
+        }
+    Scanner sc = new Scanner(System.in);
+    Random rand = new Random();
+    System.out.println("Turno del enemigo 2: "+CEnemigos.get(numTurno).getNombre());
+                    System.out.println("¿Qué hará?\n1.Atacar\n2.Usar Item\n3.Escapar????");
+                    int accionN = sc.nextInt();
+                    switch(accionN){
+                        //ATACAR
+                        case 1: 
+                            Ataque a = CEnemigos.get(numTurno).atacar();
+                            //SI ES UN ATAQUE QUE HACE DAÑO BASE (ATAQUE DIRIGIDO), ENTONCES:
+                            if(a.getDañoB() != 0){
+                                for(Combatiente i:CAliados){
+                                    
+                                    if(i.getEstado().equals("muerto")){
+                                        CAliados.remove( (CAliados.indexOf(i)) );
+                                        break;
+                                    }
+
+                                }
+                                //ELEGIR A QUIEN ATACAR
+                                System.out.println("A cuál enemigo desea atacar con "+a.getNombre()+"?");
+                                int num = 1;                    
+
+                                for(Combatiente i:CAliados){
+                                    
+                                    System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                    num++;
+
+                                }
+                                //input de cual enemigo atacar
+                                int numEnemigo = sc.nextInt();
+                                numEnemigo -= 1;
+                                Combatiente ene = CAliados.get(numEnemigo);
+
+                                
+                                //CALCULO ALEATORIO RESPECTO A LA VELOCIDAD
+                                //VELOCIDAD BASE: GUERRERO=->30 EXPLORADOR->20
+
+                                int fallar = rand.nextInt(0, CEnemigos.get(numTurno).getVelocidad()+1);
+                                if(fallar == 0){
+                                    System.out.println("UY! DEMASIADO LENTO, HA FALLADO EL ATAQUE!");
+                                }else{
+                                    //HACER DAÑO / AFECTAR AL ENEMIGO
+                                    ene.afectar(a.getDañoB(),a.getDañoC(),a.getVelocidadE(),a.getVelocidadA());
+                                    System.out.println(CEnemigos.get(numTurno).getNombre()+" a usado "+a.getNombre()+" contra "+ene.getNombre());
+                                    if(ene.getEstado().equals("muerto")){
+                                        System.out.println(a.getDañoB()+": Ha eliminado a "+ene.getNombre());
+                                    }
+                                    else{
+                                    System.out.println("Los nuevos stats del "+ene.getNombre()+" son: "+": Estado -> "+ene.getEstado()+": Puntos de Vida -> "+ene.getpuntosV()+": Velocidad -> "+ene.getVelocidad());
+                                    }
+                                }                                    
+                            }
+                            break;
+                        //ITEM
+                        case 2:
+                            //LLAMAR FUNCION DE USAR ITEM
+                            if(CEnemigos.get(numTurno).getItems().isEmpty()){
+                                System.out.println(CEnemigos.get(numTurno).getNombre()+" ya no tiene items");
+                            }else{
+                                Item p = CEnemigos.get(numTurno).UsarItem();
+                                CEnemigos.get(numTurno).getItems().remove(p);
+                                //eliminar los Aliados muertos:
+                                Combatiente objetivo = new Combatiente("a", 1, false, null, null, " ");
+                                if(p.getDaño() != 0){
+                                    //ELEGIR A QUIEN ATACAR
+                                    System.out.println("A cuál enemigo desea afectar con "+p.getNombre()+"?");
+                                    int num = 1;
+                                    for(Combatiente i:CAliados){
+                                        
+                                        System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                        num++;
+    
+                                    }
+                                    //input de cual enemigo atacar
+                                    int numEnemigo = sc.nextInt();
+                                    numEnemigo -= 1;
+
+                                    objetivo = CAliados.get(numEnemigo);
+                                }else{
+                                    objetivo = CEnemigos.get(numTurno);
+                                }
+                                
+                                //Efecto del item   cantidad, vida, curación %, daño, daño en Area, ataque, velocidad, efecto
+                                objetivo.afectar(p.getDaño(),p.getDañoDef(),p.getVelocidad(), p.getVelocidad());
+
+                                //AFECTAR DAÑO EN AREA
+                                for(Combatiente j:CAliados){
+                                    j.afectarArea(p.getDañoA());
+                                }
+
+                                System.out.println(CEnemigos.get(numTurno).getNombre()+" a usado "+p.getNombre());
+                                if(objetivo.getEstado().equals("muerto")){
+                                    System.out.println(p.getDaño()+": Ha eliminado a "+objetivo.getNombre());
+                                }
+                                else{
+                                System.out.println("Los nuevos stats del "+objetivo.getNombre()+" son: "+": Estado -> "+objetivo.getEstado()+": Puntos de Vida -> "+objetivo.getpuntosV()+": Velocidad -> "+objetivo.getVelocidad());
+                                }    
+                            }
+                            break;
+                    }
+}
+
+    //turno enemigo 3
+
+    public static void turnoE3(ArrayList<Combatiente>  CEnemigos, ArrayList<Combatiente>  CAliados, int numTurno){
+        if(CEnemigos.size() == 0){
+            gano();
+        }
+        if(CAliados.size() == 0){
+            perdio();
+        }
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+        System.out.println("Turno del enemigo 3: "+CEnemigos.get(numTurno).getNombre());
+                        System.out.println("¿Qué hará?\n1.Atacar\n2.Usar Item\n3.Escapar????");
+                        int accionN = sc.nextInt();
+                        switch(accionN){
+                            //ATACAR
+                            case 1: 
+                                Ataque a = CEnemigos.get(numTurno).atacar();
+                                //SI ES UN ATAQUE QUE HACE DAÑO BASE (ATAQUE DIRIGIDO), ENTONCES:
+                                if(a.getDañoB() != 0){
+                                    for(Combatiente i:CAliados){
+                                        
+                                        if(i.getEstado().equals("muerto")){
+                                            CAliados.remove( (CAliados.indexOf(i)) );
+                                            break;
+                                        }
+
+                                    }
+                                    //ELEGIR A QUIEN ATACAR
+                                    System.out.println("A cuál enemigo desea atacar con "+a.getNombre()+"?");
+                                    int num = 1;                    
+
+                                    for(Combatiente i:CAliados){
+                                        
+                                        System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                        num++;
+
+                                    }
+                                    //input de cual enemigo atacar
+                                    int numEnemigo = sc.nextInt();
+                                    numEnemigo -= 1;
+                                    Combatiente ene = CAliados.get(numEnemigo);
+
+                                    
+                                    //CALCULO ALEATORIO RESPECTO A LA VELOCIDAD
+                                    //VELOCIDAD BASE: GUERRERO=->30 EXPLORADOR->20
+
+                                    int fallar = rand.nextInt(0, CEnemigos.get(numTurno).getVelocidad()+1);
+                                    if(fallar == 0){
+                                        System.out.println("UY! DEMASIADO LENTO, HA FALLADO EL ATAQUE!");
+                                    }else{
+                                        //HACER DAÑO / AFECTAR AL ENEMIGO
+                                        ene.afectar(a.getDañoB(),a.getDañoC(),a.getVelocidadE(),a.getVelocidadA());
+                                        System.out.println(CEnemigos.get(numTurno).getNombre()+" a usado "+a.getNombre()+" contra "+ene.getNombre());
+                                        if(ene.getEstado().equals("muerto")){
+                                            System.out.println(a.getDañoB()+": Ha eliminado a "+ene.getNombre());
+                                        }
+                                        else{
+                                        System.out.println("Los nuevos stats del "+ene.getNombre()+" son: "+": Estado -> "+ene.getEstado()+": Puntos de Vida -> "+ene.getpuntosV()+": Velocidad -> "+ene.getVelocidad());
+                                        }
+                                    }                                    
+                                }
+                                break;
+                            //ITEM
+                            case 2:
+                                //LLAMAR FUNCION DE USAR ITEM
+                                if(CEnemigos.get(numTurno).getItems().isEmpty()){
+                                    System.out.println(CEnemigos.get(numTurno).getNombre()+" ya no tiene items");
+                                }else{
+                                    Item p = CEnemigos.get(numTurno).UsarItem();
+                                    CEnemigos.get(numTurno).getItems().remove(p);
+                                    //eliminar los Aliados muertos:
+                                    Combatiente objetivo = new Combatiente("a", 1, false, null, null, " ");
+                                    if(p.getDaño() != 0){
+                                        //ELEGIR A QUIEN ATACAR
+                                        System.out.println("A cuál enemigo desea afectar con "+p.getNombre()+"?");
+                                        int num = 1;
+                                        for(Combatiente i:CAliados){
+                                            
+                                            System.out.println(num+". "+i.getNombre()+": Puntos de Vida -> "+i.getpuntosV());
+                                            num++;
+        
+                                        }
+                                        //input de cual enemigo atacar
+                                        int numEnemigo = sc.nextInt();
+                                        numEnemigo -= 1;
+    
+                                        objetivo = CAliados.get(numEnemigo);
+                                    }else{
+                                        objetivo = CEnemigos.get(numTurno);
+                                    }
+                                    
+                                    //Efecto del item   cantidad, vida, curación %, daño, daño en Area, ataque, velocidad, efecto
+                                    objetivo.afectar(p.getDaño(),p.getDañoDef(),p.getVelocidad(), p.getVelocidad());
+
+                                    //AFECTAR DAÑO EN AREA
+                                    for(Combatiente j:CAliados){
+                                        j.afectarArea(p.getDañoA());
+                                    }
+
+                                    System.out.println(CEnemigos.get(numTurno).getNombre()+" a usado "+p.getNombre());
+                                    if(objetivo.getEstado().equals("muerto")){
+                                        System.out.println(p.getDaño()+": Ha eliminado a "+objetivo.getNombre());
+                                    }
+                                    else{
+                                    System.out.println("Los nuevos stats del "+objetivo.getNombre()+" son: "+": Estado -> "+objetivo.getEstado()+": Puntos de Vida -> "+objetivo.getpuntosV()+": Velocidad -> "+objetivo.getVelocidad());
+                                    }    
+                                }
+                                break;
+                        }
+    }
+
+    //GANA PARTIDA
+    public static void gano(){
+        System.out.println("TODOS LOS ENEMIGOS MUERTOS, USTED GANA");
+        System.out.println("SALIENDO...");
+        System.exit(0);
+    }
+    public static void perdio(){
+        System.out.println("TODOS LALIADOS MUERTOS, USTED PIERDE");
+        System.out.println("SALIENDO...");
+        System.exit(0);
+    }
+
 }
