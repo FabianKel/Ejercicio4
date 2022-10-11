@@ -1,0 +1,5 @@
+nombre, especial (0/1), cantidad, daño base, daño contínuo, velocidad propia, velocidad del enemigo
+puñetazo, 0 ,15, 15, 0, 0, 0
+patada, 0 ,15, 10, 0, 0, 0, 0
+lanzar roca, 0 ,15, 5, 0, 0, 0
+motivación, 0, 5, 5, 0, 50, 0

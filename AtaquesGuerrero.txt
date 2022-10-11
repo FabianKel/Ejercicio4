@@ -1,0 +1,5 @@
+nombre, especial (0/1), cantidad, daño base, daño contínuo, velocidad propia, velocidad del enemigo
+apuñalar, 0, 5, 30, 0, 0, 0
+embestir, 0, 5, 25, 0, 0, 0
+golpe de escudo, 0, 10, 15, 0, 0, -3
+quemar, 0, 5, 15, 4, 0, 0

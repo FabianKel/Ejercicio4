@@ -1,0 +1,5 @@
+nombre, cantidad, vida, curación %, daño, daño en Area, ataque, velocidad, efecto
+"Redención", 1, 0, 60, 0, 0, 0, 10, "Curará a todos sus alidados inculyendolo, además obtendrán mas velocidad"
+"Alternador Hextech", 1, 0, 0, 0, 25, 10, 0, "Disparaá el aternador causando daño en área a los enemigos"
+"Armadura de tela", 1, 30, 0, 0, 0, 0, -5, "Se pone una armadura que le aumenta la vida"
+"Guantes de combate", 1, 0, 0, 0, 0, 15, -5, "Se pone unos guates de hierro que le aumentan el daño, pero lo vuelven mas lento"

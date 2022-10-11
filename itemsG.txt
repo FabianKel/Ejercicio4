@@ -1,0 +1,3 @@
+nombre, cantidad, vida, curación %, daño, daño en Area, daño defensivo, ataque, velocidad, efecto
+"Cota de Espinas", 1, 15, 0, 0, 0, -20, 0, -5, "Realizará daño cuando lo ataquen"
+"Posión de Furia", 2, 0, 0, 0, 0, 0, 40, 15, "Obtendrá mas poder de ataque y más velocidad"
